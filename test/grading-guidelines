@@ -1,0 +1,220 @@
+Grading Guideline for HW2
+=========================
+
+Total points: 50 (the total below adds up to be 100, it will be divided by 2)
+
++---------------------+
+| General Guidelines: |
++---------------------+
+
+1) The points below are maximum points.  Partial credits may be given.
+
+2) Do the "plus points" first, then do the "minus points".
+
+3) Please read the student's README first to see if you need to do something
+   different to get their code to work and what the known problems are.
+
+4) The scripts below are for csh/tcsh.  If you use bash, please modify
+   them where necessary.  Or, you can do "tcsh" and then run the scripts.
+
+5) The grading is meant to be harsh!  So, if running the "diff" command
+   suppose to produce no output, but the student's code produces some
+   output, take points off accordingly.  Similarly, if running the "diff"
+   command suppose to produce some output, but the student's code
+   produces no output, take points off accordingly.
+
+6) The posted grading guidelines is not perfect.  We will try our best to
+   stick to the grading guidelines.  Sometimes, after we started grading
+   some of the submissions, we realize that we missed something (most often
+   in "minus points").  The bottomline is that we reserve the right to add
+   or change things in the grading guidelines as we see fit.
+
++--------------+
+| Plus points: |
++--------------+
+ 
+Documentation    : +3 points (comments in code plus README)
+
+set p0="yesnomaybe"
+set p1="cs531-f09"
+set p2="vcrypto"
+set p3="password"
+set p4="emptyString"
+set p5="applied"
+set p6="cryptography"
+set p7="publickey"
+
+set len0=320
+set len1=241
+set len2=202
+set len3=803
+set len4=724
+
+(A) stream: +10 points (2 points for each correct answer)
+                set srcdir=~csci531/public/cs531/hw2
+		rm bar-s?.stream
+
+		./hw2 stream -p="$p0" -l=$len0 > bar-s0.stream
+		./hw2 stream -p="$p1" -l=$len1 > bar-s1.stream
+		./hw2 stream -p="$p2" -l=$len2 > bar-s2.stream
+		./hw2 stream -p="$p3" -l=$len3 > bar-s3.stream
+		./hw2 stream -p="$p4" -l=$len4 > bar-s4.stream
+
+		foreach f (0 1 2 3 4)
+			echo "==>$srcdir/s$f.stream"
+			diff $srcdir/bar-s$f.stream bar-s$f.stream
+		end
+
+(B) encrypt: +24 points (3 points for each correct answer)
+                set srcdir=~csci531/public/cs531/hw2
+		/bin/rm bar*.pbm
+
+		cat $srcdir/small.pbm | ./hw2 encrypt -p="$p0" -out=bar-small
+		cat $srcdir/money.pbm | ./hw2 encrypt -p="$p1" -out=bar-money
+		cat $srcdir/bowtie.pbm | ./hw2 encrypt -p="$p2" -out=bar-bowtie
+		cat $srcdir/cross.pbm | ./hw2 encrypt -p="$p3" -out=bar-cross
+		./hw2 encrypt -p="$p4" -out=bar-hello $srcdir/hello.pbm
+		./hw2 encrypt -p="$p5" -out=bar-nouturn $srcdir/nouturn.pbm
+		./hw2 encrypt -p="$p6" -out=bar-stop $srcdir/stop.pbm
+		./hw2 encrypt -p="$p7" -out=bar-viterbi $srcdir/viterbi.pbm
+
+		foreach f (small money bowtie cross hello nouturn stop viterbi)
+			echo "==> $srcdir/$f.pbm"
+			diff $srcdir/bar-$f.1.pbm bar-$f.1.pbm 
+			diff $srcdir/bar-$f.2.pbm bar-$f.2.pbm 
+		end
+
+(C) merge: +24 points (3 points for each correct answer)
+                set srcdir=~csci531/public/cs531/hw2
+		/bin/rm bar*.pbm
+
+		foreach f (small money bowtie cross hello nouturn stop viterbi)
+			./hw2 merge $srcdir/bar-$f.1.pbm $srcdir/bar-$f.2.pbm > bar-merged.pbm
+			echo "==> $srcdir/$f"
+			diff $srcdir/bar-$f-merged.pbm bar-merged.pbm
+			/bin/rm bar-merged.pbm
+		end
+
+(D) decrypt: +24 points (3 points for each correct answer)
+                set srcdir=~csci531/public/cs531/hw2
+		/bin/rm bar*.pbm
+
+		foreach f (small money bowtie cross)
+			cat $srcdir/bar-$f-merged.pbm | ./hw2 decrypt > bar.pbm
+			echo "==> $srcdir/$f.pbm"
+			diff $srcdir/bar-$f.pbm bar.pbm
+			/bin/rm bar.pbm
+		end
+
+		foreach f (hello nouturn stop viterbi)
+			./hw2 decrypt $srcdir/bar-$f-merged.pbm > bar.pbm
+			echo "==> $srcdir/$f.pbm"
+			diff $srcdir/bar-$f.pbm bar.pbm
+			/bin/rm bar.pbm
+		end
+
+(E) do the whole thing with student's code: +15 points
+
+	(1) small.pbm: +5 points
+
+                set srcdir=~csci531/public/cs531/hw2
+		/bin/rm bar*.pbm
+
+		./hw2 encrypt -p="$p0" -out=bar $srcdir/small.pbm
+		./hw2 merge bar.1.pbm bar.2.pbm > bar-merged.pbm
+		./hw2 decrypt bar-merged.pbm > bar.pbm
+
+		echo "==> $srcdir/small.pbm "
+		diff $srcdir/small.pbm bar.pbm
+
+	(2) hello.pbm: +5 points
+
+                set srcdir=~csci531/public/cs531/hw2
+		/bin/rm bar*.pbm
+
+		cat $srcdir/hello.pbm | ./hw2 encrypt -p="$p1" -out=bar
+		./hw2 merge bar.1.pbm bar.2.pbm | ./hw2 decrypt > bar.pbm
+
+		echo "==> $srcdir/hello.pbm "
+		diff $srcdir/hello.pbm bar.pbm
+
+	(3) bowtie.pbm: +5 points
+
+                set srcdir=~csci531/public/cs531/hw2
+		/bin/rm bar*.pbm
+
+		cat $srcdir/bowtie.pbm | ./hw2 encrypt -p="$p2" -out=bar
+		./hw2 merge bar.1.pbm bar.2.pbm | ./hw2 decrypt > bar.pbm
+
+		echo "==> $srcdir/bowtie.pbm "
+		diff $srcdir/bowtie.pbm bar.pbm
+
++---------------+
+| Minus points: |
++---------------+
+
+Missing README file : -1 points (even if lots of comments in code)
+                      (Document+this cannot go negative)
+
+Improper citation   : -5 points
+                for code obtained from a public source, the right place
+                    to cite the source is right next to the code
+
+Cannot compile      : -5 to -10, depending on effort to make it work
+                      if cannot generate executable, at least 5 points
+                          will be taken off, up to 10 points off if it
+                          takes a lot to make it work
+
+Compiler warnings   : -1 to -3
+                      if using gcc/g++, make sure -Wall flag is used
+                          please take 1 point off for 1-4 warnings,
+                          2 points off for 5-8 warnings, 3 points for more
+
+"make clean"        : -1 point if it does not work correctly
+
+Segmentation faults : -10 points
+                if you see a seg fault (or bus error) any time during your
+                    testing of the code, if it's fairly repeatable, deduct 10
+                    points, if it's intermittent, deduct less, depending on
+                    how often you see the seg fault
+
+Separate compilation : -10 points
+                if the executable is compiled with a single line, deduct
+                    all 10 points
+                if the executable is a single module, but generates hw2.o and
+                    then link to create the executable in line one, deduct 5
+                    points
+                if most of the code are in .h files, deduct all 10 points
+
+Too slow : -10 points
+                -2 points for each run that takes more than 5 minutes to complete
+
+Bad commandline : -1 point each for each not handling properly
+                # need some sort of error output to indicate that the command
+                #     cannot be completed, it does not have to exactly the
+                #     error indicated below, just something reasonable to inform
+                #     the user about the error condition
+                # please note that commandline parsing is separate from
+                #     other functionalities, so even though a student has
+                #     declared that certain part of the assignments is not
+                #     imlemented, commandling parsing still needs to be done
+                #     for those commands
+                ./hw2
+                    (malformed command)
+                ./hw2 stream -out=foo 
+                    (malformed command)
+                ./hw2 stream -p="passphrase"
+                    (malformed command)
+                ./hw2 encrypt
+                    (malformed command)
+                ./hw2 merge -p="yesnomaybe"
+                    (malformed command)
+                ./hw2 decrypt /usr/bin/xyzz
+                    (input file /usr/bin/xyzz does not exist)
+
+Improper citation : -20 points
+                #
+                # this is only for the case that MOSS has found matched code
+                # and the studet did not cite downloaded/copied code properly
+                #
+
